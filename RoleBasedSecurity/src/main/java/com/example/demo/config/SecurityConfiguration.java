@@ -10,37 +10,38 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableAutoConfiguration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+
 	@Bean
 	AuthenticationProvider authentationProvider() {
-		DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(userDetailsService);
 		provider.setPasswordEncoder(new BCryptPasswordEncoder());
 		return provider;
-		
+
 	}
-	
+
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(10);
+	}
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		http.csrf().disable();
 		http.authorizeRequests()
-		.antMatchers("/")
-		.permitAll()
-		.antMatchers("/home")
-		.hasAuthority("USER");
-		
-		
-		http.authorizeRequests()
-		.antMatchers("/admin")
-		.hasAuthority("ADMIN")
-		.anyRequest()
-		.authenticated()
-		.and()
-		.httpBasic();
+//		.antMatchers("/admin")
+//		.permitAll()
+				.antMatchers("/user").permitAll().antMatchers("/home").hasAuthority("friends").antMatchers("/admin")
+				.hasAuthority("ADMIN")
+
+				.anyRequest().authenticated().and().httpBasic();
 	}
 }
