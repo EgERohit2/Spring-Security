@@ -16,7 +16,9 @@ public class PermissionServiceImplementation implements PermissionService{
 	
 	@Override
 	public Permission postData(Permission permission) {
-		return this.permissionRepository.save(permission);
+		Permission k=new Permission();
+		k.setPersmissionname(permission.getPersmissionname());
+		return this.permissionRepository.save(k);
 	}
 
 	@Override

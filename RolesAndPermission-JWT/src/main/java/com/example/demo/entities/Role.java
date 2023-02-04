@@ -1,8 +1,8 @@
 package com.example.demo.entities;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -13,9 +13,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="Role_table")
@@ -25,46 +28,60 @@ public class Role {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String rolename;
-	private Boolean inActive;
+	private Boolean inActive=true;
 	@CreationTimestamp
 	private LocalDate date;
-	@ManyToMany(mappedBy = "role",fetch = FetchType.EAGER)
-	private Set<User> user;
-	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-	@JoinTable(name = "Role_Permission", joinColumns = {
-	@JoinColumn(name = "rid", referencedColumnName = "id") }, inverseJoinColumns = @JoinColumn(name = "pid", referencedColumnName = "id"))
-	private List<Permission> permission;
+	@JsonIgnore
+	@ManyToMany(mappedBy = "role")
+	private List<User> user= new ArrayList<>();
+	@OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+	@JoinTable(name = "Role_Permission", joinColumns = 
+	@JoinColumn(name = "rid", referencedColumnName = "id") , inverseJoinColumns = @JoinColumn(name = "pid", referencedColumnName = "id"))
+	private List<Permission> permission = new ArrayList<>();
+
 	public int getId() {
 		return id;
 	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
+
 	public String getRolename() {
 		return rolename;
 	}
+
 	public void setRolename(String rolename) {
 		this.rolename = rolename;
 	}
-	public Set<User> getUser() {
+
+	public List<User> getUser() {
 		return user;
 	}
-	public void setUser(Set<User> user) {
+
+	public void setUser(List<User> user) {
 		this.user = user;
 	}
+
 	public List<Permission> getPermission() {
 		return permission;
 	}
+
 	public void setPermission(List<Permission> permission) {
 		this.permission = permission;
 	}
-	public Role(int id, String rolename, Set<User> user, List<Permission> permission) {
+
+	public Role(int id, String rolename, List<User> user, List<Permission> permission) {
 		super();
 		this.id = id;
 		this.rolename = rolename;
 		this.user = user;
 		this.permission = permission;
 	}
-	
+
+	public Role() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	
 }

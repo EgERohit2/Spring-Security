@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -17,7 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name="User_table")
+@Table(name = "User_table")
 public class User {
 
 	@Id
@@ -28,12 +29,11 @@ public class User {
 	private Boolean inActive = true;
 	@CreationTimestamp
 	private LocalDate date;
-	
+
 	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
 	@JoinTable(name = "User_Role", joinColumns = {
-	@JoinColumn(name = "uid", referencedColumnName = "id") }, 
-	inverseJoinColumns = @JoinColumn(name = "rid", referencedColumnName = "id"))
-	private List<Role> role;
+			@JoinColumn(name = "uid", referencedColumnName = "id") }, inverseJoinColumns = @JoinColumn(name = "rid", referencedColumnName = "id"))
+	private List<Role> role = new ArrayList<>();
 
 	public int getId() {
 		return id;
@@ -77,8 +77,7 @@ public class User {
 
 	public User() {
 		super();
+		// TODO Auto-generated constructor stub
 	}
 
-	
-	
 }
