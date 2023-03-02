@@ -11,7 +11,7 @@ public class CustomService implements UserDetails {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JwtRequest users;
-	
+
 	public CustomService(JwtRequest users) {
 		super();
 		this.users = users;
@@ -58,7 +58,5 @@ public class CustomService implements UserDetails {
 		// TODO Auto-generated method stub
 		return true;
 	}
-
-	
 
 }

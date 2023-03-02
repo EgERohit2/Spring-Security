@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,12 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.component.CustomUserDetailsService;
 import com.example.demo.component.JwtRequest;
 import com.example.demo.component.JwtResponse;
 import com.example.demo.component.JwtUtil;
+import com.example.demo.repository.JwtRequestRepository;
 
 @RestController
 public class JwtController {
@@ -29,12 +32,13 @@ public class JwtController {
 	@Autowired
 	private JwtUtil jwtUtility;
 
+	@Autowired
+	private JwtRequestRepository jwtRequestRepository;
+
 	@PostMapping("/generatetoken")
 	public ResponseEntity<?> createToken(@RequestBody JwtRequest jwtRequest) throws Exception {
 		System.out.println(jwtRequest);
 		try {
-
-			System.out.println("#########################################");
 
 			authenticate(jwtRequest.getUsername(), jwtRequest.getPassword());
 		} catch (UsernameNotFoundException e) {
@@ -43,15 +47,12 @@ public class JwtController {
 			throw new Exception("bad credential");
 		}
 
-		System.out.println("#########################################");
-
 		final UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(jwtRequest.getUsername());
-		System.out.println("#########################################");
 
 		final String token = this.jwtUtility.generateToken(userDetails);
-		System.out.println("#########################################");
+		final String refreshToken = this.jwtUtility.refreshToken(token, userDetails);
 
-		return ResponseEntity.ok(new JwtResponse(token));
+		return ResponseEntity.ok(new JwtResponse(token,refreshToken));
 
 	}
 
@@ -63,8 +64,29 @@ public class JwtController {
 		} catch (BadCredentialsException e) {
 			throw new Exception("invalid credentials", e);
 		}
-		
-		
 
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refreshAuthenticationToken(@RequestParam(defaultValue="") String refreshToken )
+	{
+		String name=jwtUtility.getUsernameFromToken(refreshToken);
+		JwtRequest users=jwtRequestRepository.findByUsername(name);
+		if(users==null)
+		{
+			return new ResponseEntity<>("InvalidUser",HttpStatus.UNAUTHORIZED);
+		}	
+		final UserDetails userDetails = customUserDetailsService.loadUserByUsername(name);
+		
+		if(jwtUtility.canTokenBeRefreshed(refreshToken)&& jwtUtility.validateToken(refreshToken, userDetails)&& jwtUtility.getTokenType(refreshToken).equalsIgnoreCase("refresh"))
+		{
+			String  newaccessToken=jwtUtility.generateToken(userDetails);
+			return new ResponseEntity<>(newaccessToken,HttpStatus.OK);
+		}
+		else
+		{
+			return new ResponseEntity<>("invalid Users",HttpStatus.UNAUTHORIZED);
+		}
+		
 	}
 }
