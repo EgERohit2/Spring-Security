@@ -18,20 +18,20 @@ public class JwtRequest {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+//	private int id;
 	private String username;
 	private String password;
 	private Boolean isActive;
 	@CreationTimestamp
 	private LocalDate date;
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
+//	public int getId() {
+//		return id;
+//	}
+//
+//	public void setId(int id) {
+//		this.id = id;
+//	}
 
 	public String getUsername() {
 		return username;
@@ -50,9 +50,9 @@ public class JwtRequest {
 	}
 
 // why & what did they
-	public JwtRequest(int id, String username, String password) {
+	public JwtRequest( String username, String password) {
 		super();
-		this.id = id;
+		 
 		this.username = username;
 		this.password = password;
 	}

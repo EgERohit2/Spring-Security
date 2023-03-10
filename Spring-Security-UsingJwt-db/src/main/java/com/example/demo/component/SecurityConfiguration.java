@@ -17,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+	public static final String[] PUBLIC_URLS = { "/v3/api-docs", "/v2/api-docs", "/swagger-resources/**",
+			"/swagger-ui/**", "/webjars/**", "/api/swagger-ui/index.html" };
 	@Autowired
 	private jwtAuthentictionEntryPoint entryPoint;
 
@@ -43,8 +45,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/generatetoken", "/JwtReq","/refresh","/swagger-ui/**,\"/v3/api-docs\", \"/v2/api-docs\"").permitAll().anyRequest()
-				.authenticated().and().exceptionHandling().authenticationEntryPoint(entryPoint).and()
+
+		http.csrf().disable().authorizeRequests().antMatchers("/generatetoken", "/JwtReq", "/refresh").permitAll()
+				.antMatchers(PUBLIC_URLS).permitAll().
+
+				anyRequest().authenticated().and().exceptionHandling().authenticationEntryPoint(entryPoint).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
